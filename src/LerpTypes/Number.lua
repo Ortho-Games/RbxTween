@@ -1,5 +1,7 @@
-require(script.Parent).register("Number", function(a, b, t)
+local function lerp(a, b, t)
 	return (1 - t) * a + t * b
-end)
+end
 
-return 0
+require(script.Parent).register("Number", lerp)
+
+return lerp
