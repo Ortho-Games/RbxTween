@@ -15,13 +15,14 @@ local function lerp(a: NumberSequence, b: NumberSequence, t: number): NumberSequ
 
 		table.insert(numSet, keypoint.Time)
 	end
+	table.sort(numSet)
 
 	local keypoints: { NumberSequenceKeypoint } = {}
 	for _, alpha in numSet do
 		local a_val = evalNumberSequence(a, alpha)
 		local b_val = evalNumberSequence(b, alpha)
 
-		table.insert(keypoints, NumberSequenceKeypoint.new(alpha, Number(a_val, b_val, alpha)))
+		table.insert(keypoints, NumberSequenceKeypoint.new(alpha, Number(a_val, b_val, t)))
 	end
 
 	return NumberSequence.new(keypoints)

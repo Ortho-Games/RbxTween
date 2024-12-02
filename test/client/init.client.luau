@@ -31,10 +31,11 @@ particleEmitter.Parent = p
 
 local n1 = NumberSequence.new({
 	NumberSequenceKeypoint.new(0, 0),
+	NumberSequenceKeypoint.new(0.25, 0.75),
 	NumberSequenceKeypoint.new(1, 1),
 })
 
 RbxTween.to(particleEmitter, {
 	Transparency = n1,
-	duration = 5,
+	duration = 10,
 }).play()
