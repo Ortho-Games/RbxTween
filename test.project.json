@@ -8,6 +8,13 @@
       "RbxTween": {
         "$path": "./src"
       }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "RbxTweenClient": {
+          "$path": "./test/client"
+        }
+      }
     }
   }
 }

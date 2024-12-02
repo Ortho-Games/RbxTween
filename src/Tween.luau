@@ -1,3 +1,5 @@
+local RunService = game:GetService("RunService")
+
 local EaseDirections = require(script.Parent.EaseDirections)
 local EaseStyles = require(script.Parent.EaseStyles)
 local LerpTypes = require(script.Parent.LerpTypes)
@@ -30,9 +32,7 @@ function Tween.to<T>(targets: { T } | T, props: { [string]: any }): Tween
 
 	local _targets: { T } = if typeof(targets) ~= "table" then { targets } else targets
 
-	local startValues = {}
-	local endValues = {}
-	local delays = {}
+	local updateEvent = if RunService:IsServer() then RunService.Heartbeat else RunService.RenderStepped
 
 	local easeStyle = props.ease or "linear"
 	assert(EaseStyles.registry[easeStyle], `No easing style found called {easeStyle} found in EasingStyles registry.`)
@@ -42,14 +42,19 @@ function Tween.to<T>(targets: { T } | T, props: { [string]: any }): Tween
 		`No easing direction found called {direction} found in EasingDirections registry.`
 	)
 
-	self.progress = 0
+	local _progress = 0
+	self.duration = props.duration or 1
+	self.event = nil
+
+	local startValues = {}
+	local endValues = {}
 
 	local targetType = typeof(_targets[1])
 
+	local originalTargetProps = {}
 	-- get and cache all start and end values
 	for _, target in _targets :: { T } do
-		startValues[target] = {}
-		endValues[target] = {}
+		originalTargetProps[target] = {}
 
 		if typeof(target) ~= targetType then
 			error(`Tween targets not all the same type, please consider making multiple tweens or separate arrays.`, 1)
@@ -67,23 +72,85 @@ function Tween.to<T>(targets: { T } | T, props: { [string]: any }): Tween
 				continue
 			end
 
-			--- @TODO: Evaluate start state in relation to the end of the previous state
-			local startState = target[propName]
-			local endState = evaluateEndState(propName, propValue, startState)
+			originalTargetProps[target][propName] = target[propName]
+		end
+	end
 
-			startValues[propName] = startState
-			endValues[propName] = endState
+	function self.draw()
+		for _, v in _targets do
+			for propName in startValues[v] do
+				local typeOf = typeof(startValues[v][propName])
+				local lerper = LerpTypes.registry[typeOf]
+				if not lerper then
+					warn("no lerper for", propName)
+					continue
+				end
+
+				v[propName] = lerper(startValues[v][propName], endValues[v][propName], _progress)
+			end
 		end
 	end
 
 	--- @within Tween
-	function self.play() end
+	function self.play()
+		-- get and cache all start and end values
+		for _, target in _targets :: { T } do
+			startValues[target] = {}
+			endValues[target] = {}
+
+			if typeof(target) ~= targetType then
+				error(
+					`Tween targets not all the same type, please consider making multiple tweens or separate arrays.`,
+					1
+				)
+			end
+
+			for propName, propValue in props do
+				local success = pcall(function()
+					return target[propName]
+				end)
+				if not success then
+					continue
+				end
+				local propType = typeof(target[propName])
+				if not LerpTypes.registry[propType] then
+					continue
+				end
+
+				--- @TODO: Evaluate start state in relation to the end of the previous state
+				local startState = target[propName]
+				-- local endState = evaluateEndState(propName, propValue, startState)
+
+				startValues[target][propName] = startState
+				endValues[target][propName] = propValue
+			end
+		end
+
+		self.event = updateEvent:Connect(function(dt)
+			_progress += dt / self.duration
+
+			self.draw()
+
+			if self.progress() >= 1 then
+				self.stop()
+				if props.onComplete then
+					props.onComplete()
+				end
+			end
+		end)
+	end
 
 	--- @within Tween
-	function self.progress() end
+	function self.progress(): number
+		return math.clamp(_progress, 0, 1)
+	end
 
 	--- @within Tween
-	function self.stop() end
+	function self.stop()
+		if self.event then
+			self.event:Disconnect()
+		end
+	end
 
 	--- @within Tween
 	function self.reset() end
