@@ -1,7 +1,7 @@
 local registry = {}
 
 return {
-	register = function(property: string, lerpFunc: (a: any, b: any, t: number) -> number)
+	register = function<T>(property: string, lerpFunc: (a: T, b: T, t: number) -> T)
 		registry[property] = lerpFunc
 	end,
 	registry = registry,

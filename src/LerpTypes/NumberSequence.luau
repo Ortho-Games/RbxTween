@@ -1,5 +1,6 @@
 local Number = require(script.Parent.Number)
-local function evalNumberSequence(sequence: NumberSequence, time: number)
+
+local function evalNumberSequence(sequence: NumberSequence, time: number): number
 	-- If time is 0 or 1, return the first or last value respectively
 	if time == 0 then
 		return sequence.Keypoints[1].Value
@@ -18,14 +19,16 @@ local function evalNumberSequence(sequence: NumberSequence, time: number)
 			return currKeypoint.Value + (nextKeypoint.Value - currKeypoint.Value) * alpha
 		end
 	end
+
+	return 0
 end
 
-local function lerpNumSequence(a: NumberSequence, b: NumberSequence, t)
+local function lerp(a: NumberSequence, b: NumberSequence, t: number): NumberSequence
 	local numSet = {}
-	for _, keypoint in a.Keypoints do
+	for _, keypoint: NumberSequenceKeypoint in a.Keypoints do
 		table.insert(numSet, keypoint.Time)
 	end
-	for _, keypoint in b.Keypoints do
+	for _, keypoint: NumberSequenceKeypoint in b.Keypoints do
 		if table.find(numSet, keypoint.Time) then
 			continue
 		end
@@ -33,7 +36,7 @@ local function lerpNumSequence(a: NumberSequence, b: NumberSequence, t)
 		table.insert(numSet, keypoint.Time)
 	end
 
-	local keypoints = {}
+	local keypoints: { NumberSequenceKeypoint } = {}
 	for _, alpha in numSet do
 		local a_val = evalNumberSequence(a, alpha)
 		local b_val = evalNumberSequence(b, alpha)
@@ -44,6 +47,6 @@ local function lerpNumSequence(a: NumberSequence, b: NumberSequence, t)
 	return NumberSequence.new(keypoints)
 end
 
-require(script.Parent).register("NumberSequence", lerpNumSequence)
+require(script.Parent).register("NumberSequence", lerp)
 
-return lerpNumSequence
+return lerp
