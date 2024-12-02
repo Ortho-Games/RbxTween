@@ -12,3 +12,5 @@ require(script.Parent).register("bounce", function(t: number): number
 		return 7.5625 * t * t + 0.984375
 	end
 end)
+
+return 0

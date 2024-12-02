@@ -1,5 +1,6 @@
 local EaseDirections = require(script.Parent.EaseDirections)
 local EaseStyles = require(script.Parent.EaseStyles)
+local LerpTypes = require(script.Parent.LerpTypes)
 
 --- @class Tween
 local Tween = {}
@@ -10,8 +11,70 @@ export type Tween = {
 	stop: () -> (),
 }
 
-function Tween.to(targets: { Instance } | Instance, props: { [string]: any }): Tween
+local tweenProps = {
+	"ease",
+	"repeat",
+	"direction",
+	"onStart",
+	"onComplete",
+	"stagger",
+	"centerGoal",
+	"axis",
+	"randomSeed",
+}
+
+local function evaluateEndState(propName, value, startValue) end
+
+function Tween.to<T>(targets: { T } | T, props: { [string]: any }): Tween
 	local self = {}
+
+	local _targets: { T } = if typeof(targets) ~= "table" then { targets } else targets
+
+	local startValues = {}
+	local endValues = {}
+	local delays = {}
+
+	local easeStyle = props.ease or "linear"
+	assert(EaseStyles.registry[easeStyle], `No easing style found called {easeStyle} found in EasingStyles registry.`)
+	local direction = props.direction or "in"
+	assert(
+		EaseDirections.registry[direction],
+		`No easing direction found called {direction} found in EasingDirections registry.`
+	)
+
+	self.progress = 0
+
+	local targetType = typeof(_targets[1])
+
+	-- get and cache all start and end values
+	for _, target in _targets :: { T } do
+		startValues[target] = {}
+		endValues[target] = {}
+
+		if typeof(target) ~= targetType then
+			error(`Tween targets not all the same type, please consider making multiple tweens or separate arrays.`, 1)
+		end
+
+		for propName, propValue in props do
+			local success = pcall(function()
+				return target[propName]
+			end)
+			if not success then
+				continue
+			end
+			local propType = typeof(target[propName])
+			if not LerpTypes.registry[propType] then
+				continue
+			end
+
+			--- @TODO: Evaluate start state in relation to the end of the previous state
+			local startState = target[propName]
+			local endState = evaluateEndState(propName, propValue, startState)
+
+			startValues[propName] = startState
+			endValues[propName] = endState
+		end
+	end
 
 	--- @within Tween
 	function self.play() end
@@ -21,6 +84,9 @@ function Tween.to(targets: { Instance } | Instance, props: { [string]: any }): T
 
 	--- @within Tween
 	function self.stop() end
+
+	--- @within Tween
+	function self.reset() end
 
 	return self
 

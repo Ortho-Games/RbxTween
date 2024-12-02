@@ -1,4 +1,4 @@
-require(script.Parent).register("inOut", function(ease: EasingFunction): EasingFunction
+require(script.Parent).register("inOut", function(ease)
 	return function(t: number): number
 		if t < 0.5 then
 			return ease(t * 2) / 2
@@ -7,3 +7,5 @@ require(script.Parent).register("inOut", function(ease: EasingFunction): EasingF
 		end
 	end
 end)
+
+return 0
