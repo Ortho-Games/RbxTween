@@ -1,0 +1,13 @@
+{
+  "name": "RbxTween",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "OrthoUtil": {
+        "$path": "./src"
+      }
+    }
+  }
+}

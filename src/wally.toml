@@ -1,0 +1,14 @@
+[package]
+name = "ortho-games/RbxTween"
+version = "0.0.1"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["Ssyntaxeeker, DylWithlt"]
+
+description = "An Ortho Games utility module for easy access utilities."
+
+realm = "shared"
+
+exclude = ["README.md"]
+
+[dependencies]
