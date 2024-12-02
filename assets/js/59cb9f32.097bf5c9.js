@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[876],{4410:s=>{s.exports=JSON.parse('{"sourceUrl":"https://github.com/Ortho-Games/RbxTween/blob/main","baseUrl":"/OrthoUtil/","classOrder":[],"apiCategories":[]}')}}]);
