@@ -43,6 +43,8 @@ function Tween.to<T>(targets: { T } | T, props: { [string]: any }): Tween
 	)
 
 	local _progress = 0
+	local _elapsed = 0
+
 	self.duration = props.duration or 1
 	self.event = nil
 
@@ -127,11 +129,12 @@ function Tween.to<T>(targets: { T } | T, props: { [string]: any }): Tween
 		end
 
 		self.event = updateEvent:Connect(function(dt)
-			_progress += dt / self.duration
+			_elapsed += dt
+			_progress = _elapsed / self.duration
 
 			self.draw()
 
-			if self.progress() >= 1 then
+			if _progress >= 1 then
 				self.stop()
 				if props.onComplete then
 					props.onComplete()

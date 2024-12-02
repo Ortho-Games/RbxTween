@@ -1,27 +1,7 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local evalNumberSequence = require(ReplicatedStorage.RbxTween.Utils.evalNumberSequence)
 local Number = require(script.Parent.Number)
-
-local function evalNumberSequence(sequence: NumberSequence, time: number): number
-	-- If time is 0 or 1, return the first or last value respectively
-	if time == 0 then
-		return sequence.Keypoints[1].Value
-	elseif time == 1 then
-		return sequence.Keypoints[#sequence.Keypoints].Value
-	end
-
-	-- Otherwise, step through each sequential pair of keypoints
-	for i = 1, #sequence.Keypoints - 1 do
-		local currKeypoint = sequence.Keypoints[i]
-		local nextKeypoint = sequence.Keypoints[i + 1]
-		if time >= currKeypoint.Time and time < nextKeypoint.Time then
-			-- Calculate how far alpha lies between the points
-			local alpha = (time - currKeypoint.Time) / (nextKeypoint.Time - currKeypoint.Time)
-			-- Return the value between the points using alpha
-			return currKeypoint.Value + (nextKeypoint.Value - currKeypoint.Value) * alpha
-		end
-	end
-
-	return 0
-end
 
 local function lerp(a: NumberSequence, b: NumberSequence, t: number): NumberSequence
 	local numSet = {}

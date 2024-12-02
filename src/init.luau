@@ -8,6 +8,7 @@ local EaseStyles = require(script.EaseStyles)
 local Timeline = require(script.Timeline)
 local Tween = require(script.Tween)
 local Types = require(script.Types)
+local evalNumberSequence = require(script.Utils.evalNumberSequence)
 
 for _, v in script:GetDescendants() do
 	if v:IsA("ModuleScript") then
@@ -26,6 +27,12 @@ RbxTween.Timelines = {}
 --- @param name string
 --- @param func (t: number ) -> number
 RbxTween.registerStyle = EaseStyles.register
+
+function RbxTween.tweenFromNumberSequence(numberSequence: NumberSequence): (x: number) -> number
+	return function(x: number): number
+		return evalNumberSequence(numberSequence, x)
+	end
+end
 
 --- @within RbxTween
 --- @function registerDirection
